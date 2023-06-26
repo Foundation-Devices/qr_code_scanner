@@ -26,6 +26,8 @@ flutter:
         pluginClass: FlutterQrPlugin
       ios:
         pluginClass: FlutterQrPlugin
+      linux:
+        pluginClass: QrCodeScannerPlugin
 #      web:
 #        pluginClass: FlutterQrPlugin
 #        fileName: flutter_qr_web.dart

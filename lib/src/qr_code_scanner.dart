@@ -141,6 +141,10 @@ class _QRViewState extends State<QRView> {
             creationParamsCodec: const StandardMessageCodec(),
           );
           break;
+        case TargetPlatform.linux:
+          _platformQrView = Container(color: Colors.green,);
+          _onPlatformViewCreated(0);
+          break;
         default:
           throw UnsupportedError(
               "Trying to use the default qrview implementation for $defaultTargetPlatform but there isn't a default one");
