@@ -155,7 +155,9 @@ static void qr_code_scanner_plugin_handle_method_call(
 
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
     } else if (strcmp(method, "pauseCamera") == 0) {
-        stop_scanning();
+        if (proc != NULL) {
+            stop_scanning();
+        }
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_null()));
     }
     else {
