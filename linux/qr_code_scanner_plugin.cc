@@ -134,7 +134,9 @@ static void qr_code_scanner_plugin_handle_method_call(
                 result = fl_value_new_int(1);
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
     } else if (strcmp(method, "startScan") == 0) {
-        int texture_id = start_scanning();
+        if (proc == NULL) {
+            start_scanning();
+        }
 
         // Get these from above ^^
         g_autoptr(FlValue)
@@ -150,7 +152,7 @@ static void qr_code_scanner_plugin_handle_method_call(
                 result = fl_value_new_map();
 
         fl_value_set(result, fl_value_new_string("torchable"), torchable);
-        fl_value_set(result, fl_value_new_string("textureId"), fl_value_new_int(texture_id));
+        fl_value_set(result, fl_value_new_string("textureId"), fl_value_new_int(0));
         fl_value_set(result, fl_value_new_string("size"), size);
 
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
