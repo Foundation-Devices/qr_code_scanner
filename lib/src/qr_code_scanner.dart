@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -142,7 +143,9 @@ class _QRViewState extends State<QRView> {
           );
           break;
         case TargetPlatform.linux:
-          _platformQrView = Container(color: Colors.green,);
+          _platformQrView = Container(
+            color: Colors.green,
+          );
           _onPlatformViewCreated(0);
           break;
         default:
@@ -227,6 +230,7 @@ class QRViewController {
   Stream<Barcode> get scannedDataStream => _scanUpdateController.stream;
 
   bool _hasPermissions = false;
+
   bool get hasPermissions => _hasPermissions;
 
   /// Starts the barcode scanner
@@ -236,7 +240,14 @@ class QRViewController {
     try {
       await QRViewController.updateDimensions(key, _channel, overlay: overlay);
       return await _channel.invokeMethod(
-          'startScan', barcodeFormats?.map((e) => e.asInt()).toList() ?? []);
+          'startScan',
+          defaultTargetPlatform == TargetPlatform.linux
+              ? {
+                  "device": Platform.environment.containsKey('FLUTTER_TEST')
+                      ? "/dev/video5"
+                      : "/dev/video0"
+                }
+              : barcodeFormats?.map((e) => e.asInt()).toList() ?? []);
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
     }

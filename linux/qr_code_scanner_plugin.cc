@@ -76,7 +76,7 @@ static void stop_scanning() {
     zbar::zbar_processor_destroy(proc);
 }
 
-static int start_scanning() {
+static int start_scanning(const char *video_device) {
     proc = zbar::zbar_processor_create(1);
     if (!proc) {
         fprintf(stderr, "ERROR: unable to allocate memory?\n");
@@ -85,7 +85,6 @@ static int start_scanning() {
 
     zbar_processor_set_data_handler(proc, data_handler, NULL);
 
-    const char *video_device = "/dev/video0";
     int display = 1;
     unsigned long infmt = 0, outfmt = 0;//0x41424752;
 
@@ -135,7 +134,9 @@ static void qr_code_scanner_plugin_handle_method_call(
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
     } else if (strcmp(method, "startScan") == 0) {
         if (proc == NULL) {
-            start_scanning();
+            FlValue* args = fl_method_call_get_args(method_call);
+            FlValue* device = fl_value_lookup_string(args, "device");
+            start_scanning(fl_value_get_string(device));
         }
 
         // Get these from above ^^
