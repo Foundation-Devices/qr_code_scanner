@@ -233,7 +233,10 @@ class QRViewController {
 
   bool get hasPermissions => _hasPermissions;
 
-  /// Starts the barcode scanner
+  final bool isIntegrationTesting = Platform.environment.containsKey('FLUTTER_TEST');
+  late final linuxDevice = isIntegrationTesting ? "/dev/video5" : "/dev/video0";
+
+  // Starts the barcode scanner
   Future<void> _startScan(GlobalKey key, QrScannerOverlayShape? overlay,
       List<BarcodeFormat>? barcodeFormats) async {
     // We need to update the dimension before the scan is started.
@@ -242,11 +245,7 @@ class QRViewController {
       return await _channel.invokeMethod(
           'startScan',
           defaultTargetPlatform == TargetPlatform.linux
-              ? {
-                  "device": Platform.environment.containsKey('FLUTTER_TEST')
-                      ? "/dev/video5"
-                      : "/dev/video0"
-                }
+              ? { "device" : linuxDevice }
               : barcodeFormats?.map((e) => e.asInt()).toList() ?? []);
     } on PlatformException catch (e) {
       throw CameraException(e.code, e.message);
