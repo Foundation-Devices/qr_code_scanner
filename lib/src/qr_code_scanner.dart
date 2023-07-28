@@ -233,7 +233,7 @@ class QRViewController {
 
   bool get hasPermissions => _hasPermissions;
 
-  final bool isIntegrationTesting = Platform.environment.containsKey('FLUTTER_TEST');
+  final bool isIntegrationTesting = !Platform.environment.containsKey('ENVOY_LINUX');
   late final linuxDevice = isIntegrationTesting ? "/dev/video5" : "/dev/video0";
 
   // Starts the barcode scanner
