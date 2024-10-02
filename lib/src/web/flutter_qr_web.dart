@@ -323,6 +323,12 @@ class QRViewControllerWeb implements QRViewController {
     // TODO: implement scanInvert
     throw UnimplementedError();
   }
+
+  @override
+  bool get isIntegrationTesting => false;
+
+  @override
+  String get linuxDevice => throw UnimplementedError();
 }
 
 Widget createWebQrView(
