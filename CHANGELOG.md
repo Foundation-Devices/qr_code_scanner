@@ -1,3 +1,10 @@
+## 2.0.11
+
+FIX for iOS 26:
+- For iOS 26 or newer, call `pauseCamera` on dispose instead of `stopCamera`
+
+Note: Calling stopCamera on dispose was causing UI to hang for 1-3 seconds
+
 ## 2.0.10+1
 
 - Increased android compile SDK to 35 and removed android test deps 
