@@ -1,3 +1,6 @@
+## 2.0.12
+- For iOS 18 or newer, call `pauseCamera` on dispose instead of `stopCamera`
+
 ## 2.0.11
 
 FIX for iOS 26:

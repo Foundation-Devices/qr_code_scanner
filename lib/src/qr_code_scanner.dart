@@ -298,9 +298,9 @@ class QRViewController {
         final iOSVersionDouble = double.tryParse(iOSVersion) ?? 0;
 
         // print('iOSVersionDouble $iOSVersionDouble');
-        if (iOSVersionDouble < 26.0) {
-          // Don't call stopCamera on iOS 26 or higher
-          // -- it causes UI to hang for a few seconds
+        if (iOSVersionDouble < 18.0) {
+          // Don't call stopCamera on iOS 18 or higher
+          // -- it causes UI to hang for a few seconds, especially on iOS 26+
           await _channel.invokeMethod('stopCamera');
         } else {
           await _channel.invokeMethod('pauseCamera');
