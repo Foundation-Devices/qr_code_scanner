@@ -51,6 +51,7 @@ class WebQrView extends StatefulWidget {
   }
 }
 
+// ignore: no_leading_underscores_for_local_identifiers
 class _WebQrViewState extends State<WebQrView> {
   web.MediaStream? _localStream;
   // html.CanvasElement canvas;
@@ -293,7 +294,8 @@ class QRViewControllerWeb implements QRViewController {
   @override
   bool disposed = false;
 
-  QRViewControllerWeb(this._state);
+// ignore: library_private_types_in_public_api
+  QRViewControllerWeb(_WebQrViewState state) : _state = state;
 
   @Deprecated(
     "Disposing the QRViewController is no longer necessary. The controller will self-dispose when the QRView is un-mounted.",
@@ -385,12 +387,18 @@ class QRViewControllerWeb implements QRViewController {
     // TODO: implement scanInvert
     throw UnimplementedError();
   }
+
+  bool get isIntegrationTesting => false;
+
+  String get linuxDevice => throw UnimplementedError();
 }
 
 Widget createWebQrView(
-        {onPlatformViewCreated, onPermissionSet, CameraFacing? cameraFacing}) =>
+        {Function(QRViewController)? onPlatformViewCreated,
+        onPermissionSet,
+        CameraFacing? cameraFacing}) =>
     WebQrView(
-      onPlatformViewCreated: onPlatformViewCreated,
+      onPlatformViewCreated: onPlatformViewCreated ?? (_) {},
       onPermissionSet: onPermissionSet,
       cameraFacing: cameraFacing,
     );
