@@ -1,12 +1,11 @@
 @JS()
-library jsqr;
+library;
 
-import 'package:js/js.dart';
+import 'dart:js_interop';
 
 @JS('jsQR')
-external Code jsQR(var data, int? width, int? height);
+external Code? jsQR(JSTypedArray data, int? width, int? height);
 
-@JS()
-class Code {
+extension type Code._(JSObject _) implements JSObject {
   external String get data;
 }

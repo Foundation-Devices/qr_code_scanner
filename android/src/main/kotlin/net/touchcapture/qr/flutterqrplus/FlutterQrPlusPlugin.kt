@@ -1,11 +1,11 @@
-package net.touchcapture.qr.flutterqr
+package net.touchcapture.qr.flutterqrplus
 
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 
-class FlutterQrPlugin : FlutterPlugin, ActivityAware {
+class FlutterQrPlusPlugin : FlutterPlugin, ActivityAware {
 
     /** Plugin registration embedding v2 */
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -42,6 +42,6 @@ class FlutterQrPlugin : FlutterPlugin, ActivityAware {
     }
 
     companion object {
-        private const val VIEW_TYPE_ID = "net.touchcapture.qr.flutterqr/qrview"
+        private const val VIEW_TYPE_ID = "net.touchcapture.qr.flutterqrplus/qrview"
     }
 }

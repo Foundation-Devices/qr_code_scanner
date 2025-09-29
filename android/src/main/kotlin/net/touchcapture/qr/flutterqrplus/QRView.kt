@@ -1,4 +1,4 @@
-package net.touchcapture.qr.flutterqr
+package net.touchcapture.qr.flutterqrplus
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -28,7 +28,7 @@ class QRView(
     private val cameraRequestCode = QrShared.CAMERA_REQUEST_ID + this.id
 
     private val channel: MethodChannel = MethodChannel(
-        messenger, "net.touchcapture.qr.flutterqr/qrview_$id"
+        messenger, "net.touchcapture.qr.flutterqrplus/qrview_$id"
     )
     private val cameraFacingBack = 0
     private val cameraFacingFront = 1

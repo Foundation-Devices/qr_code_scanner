@@ -1,16 +1,16 @@
 import Flutter
 import UIKit
 
-public class SwiftFlutterQrPlugin: NSObject, FlutterPlugin {
+public class SwiftFlutterQrPlusPlugin: NSObject, FlutterPlugin {
 
   var factory: QRViewFactory
   public init(with registrar: FlutterPluginRegistrar) {
     self.factory = QRViewFactory(withRegistrar: registrar)
-    registrar.register(factory, withId: "net.touchcapture.qr.flutterqr/qrview")
+    registrar.register(factory, withId: "net.touchcapture.qr.flutterqrplus/qrview")
   }
     
   public static func register(with registrar: FlutterPluginRegistrar) {
-    registrar.addApplicationDelegate(SwiftFlutterQrPlugin(with: registrar))
+    registrar.addApplicationDelegate(SwiftFlutterQrPlusPlugin(with: registrar))
   }
   
   public func applicationDidEnterBackground(_ application: UIApplication) {

@@ -2,13 +2,16 @@
 
 import 'dart:async';
 import 'dart:core';
-import 'dart:html' as html;
-import 'dart:js_util';
+import 'dart:developer';
+// import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:ui' as ui;
+import 'dart:ui_web' as ui_web;
+import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
 
-import '../../qr_code_scanner.dart';
+import '../../qr_code_scanner_plus.dart';
 import 'jsqr.dart';
 import 'media.dart';
 
@@ -23,25 +26,22 @@ class WebQrView extends StatefulWidget {
   final PermissionSetCallback? onPermissionSet;
   final CameraFacing? cameraFacing;
 
-  const WebQrView(
-      {Key? key,
-      required this.onPlatformViewCreated,
-      this.onPermissionSet,
-      this.cameraFacing = CameraFacing.front})
-      : super(key: key);
+  const WebQrView({
+    super.key,
+    required this.onPlatformViewCreated,
+    this.onPermissionSet,
+    this.cameraFacing = CameraFacing.front,
+  });
 
   @override
-  _WebQrViewState createState() => _WebQrViewState();
-
-  static html.DivElement vidDiv =
-      html.DivElement(); // need a global for the registerViewFactory
+  State<StatefulWidget> createState() => _WebQrViewState();
 
   static Future<bool> cameraAvailable() async {
     final sources =
-        await html.window.navigator.mediaDevices!.enumerateDevices();
+        await web.window.navigator.mediaDevices.enumerateDevices().toDart;
     // List<String> vidIds = [];
     var hasCam = false;
-    for (final e in sources) {
+    for (final e in sources.toDart) {
       if (e.kind == 'videoinput') {
         // vidIds.add(e['deviceId']);
         hasCam = true;
@@ -51,8 +51,9 @@ class WebQrView extends StatefulWidget {
   }
 }
 
+// ignore: no_leading_underscores_for_local_identifiers
 class _WebQrViewState extends State<WebQrView> {
-  html.MediaStream? _localStream;
+  web.MediaStream? _localStream;
   // html.CanvasElement canvas;
   // html.CanvasRenderingContext2D ctx;
   bool _currentlyProcessing = false;
@@ -63,8 +64,8 @@ class _WebQrViewState extends State<WebQrView> {
   Timer? timer;
   String? code;
   String? _errorMsg;
-  html.VideoElement video = html.VideoElement();
-  String viewID = 'QRVIEW-' + DateTime.now().millisecondsSinceEpoch.toString();
+  web.HTMLVideoElement video = web.HTMLVideoElement();
+  String viewID = 'QRVIEW-${DateTime.now().millisecondsSinceEpoch}';
 
   final StreamController<Barcode> _scanUpdateController =
       StreamController<Barcode>();
@@ -78,11 +79,7 @@ class _WebQrViewState extends State<WebQrView> {
 
     facing = widget.cameraFacing ?? CameraFacing.front;
 
-    // video = html.VideoElement();
-    WebQrView.vidDiv.children = [video];
-    // ignore: UNDEFINED_PREFIXED_NAME
-    ui.platformViewRegistry
-        .registerViewFactory(viewID, (int id) => WebQrView.vidDiv);
+    ui_web.platformViewRegistry.registerViewFactory(viewID, (int id) => video);
     // giving JavaScipt some time to process the DOM changes
     Timer(const Duration(milliseconds: 500), () {
       start();
@@ -111,6 +108,7 @@ class _WebQrViewState extends State<WebQrView> {
   @override
   void dispose() {
     cancel();
+    _controller?._disposeImpl();
     super.dispose();
   }
 
@@ -121,25 +119,60 @@ class _WebQrViewState extends State<WebQrView> {
     }
 
     try {
-      var constraints = UserMediaOptions(
-          video: VideoOptions(
-        facingMode: (facing == CameraFacing.front ? 'user' : 'environment'),
-      ));
-      // dart style, not working properly:
-      // var stream =
-      //     await html.window.navigator.mediaDevices.getUserMedia(constraints);
-      // straight JS:
+      final UserMediaOptions constraints;
+      switch (facing) {
+        case CameraFacing.front:
+          constraints = UserMediaOptions(
+            video: VideoOptions(facingMode: 'user'),
+          );
+          break;
+        case CameraFacing.unknown:
+        // fall through
+        case CameraFacing.back:
+          final List<web.MediaDeviceInfo> devices =
+              (await enumerateDevices().toDart).toDart;
+
+          final List<web.MediaDeviceInfo> backCameras = devices
+              .where(
+                (device) =>
+                    device.kind == 'videoinput' &&
+                    device.label.toLowerCase().contains('back'),
+              )
+              .toList();
+
+          // attempt to find a main/primary camera. If none, use last back camera entry if it exists
+          final web.MediaDeviceInfo? idealCameraMediaInfo = backCameras
+                  .where(
+                    (camera) =>
+                        camera.label.toLowerCase().contains('main') ||
+                        camera.label.toLowerCase().contains('primary'),
+                  )
+                  .lastOrNull ??
+              backCameras.lastOrNull;
+
+          constraints = UserMediaOptions(
+            video: idealCameraMediaInfo != null
+                ? VideoOptions(
+                    deviceId:
+                        DeviceIdOptions(exact: idealCameraMediaInfo.deviceId),
+                  )
+                : VideoOptions(
+                    facingMode: "environment",
+                  ),
+          );
+      }
+
       if (_controller == null) {
         _controller = QRViewControllerWeb(this);
         widget.onPlatformViewCreated(_controller!);
       }
-      var stream = await promiseToFuture(getUserMedia(constraints));
+      var stream = await getUserMedia(constraints).toDart;
       widget.onPermissionSet?.call(_controller!, true);
       _localStream = stream;
       video.srcObject = _localStream;
       video.setAttribute('playsinline',
           'true'); // required to tell iOS safari we don't want fullscreen
-      await video.play();
+      await video.play().toDart;
     } catch (e) {
       cancel();
       if (e.toString().contains("NotAllowedError")) {
@@ -160,7 +193,7 @@ class _WebQrViewState extends State<WebQrView> {
   Future<void> _stopStream() async {
     try {
       // await _localStream.dispose();
-      _localStream!.getTracks().forEach((track) {
+      _localStream!.getTracks().toDart.forEach((track) {
         if (track.readyState == 'live') {
           track.stop();
         }
@@ -177,16 +210,18 @@ class _WebQrViewState extends State<WebQrView> {
     if (_localStream == null) {
       return null;
     }
-    final canvas =
-        html.CanvasElement(width: video.videoWidth, height: video.videoHeight);
+    final canvas = web.HTMLCanvasElement();
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
     final ctx = canvas.context2D;
     // canvas.width = video.videoWidth;
     // canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    final imgData = ctx.getImageData(0, 0, canvas.width!, canvas.height!);
+    final imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    final size =
-        Size(canvas.width?.toDouble() ?? 0, canvas.height?.toDouble() ?? 0);
+    final size = Size(canvas.width.toDouble(), canvas.height.toDouble());
     if (size != _size) {
       setState(() {
         _setCanvasSize(size);
@@ -256,9 +291,38 @@ class _WebQrViewState extends State<WebQrView> {
 class QRViewControllerWeb implements QRViewController {
   final _WebQrViewState _state;
 
-  QRViewControllerWeb(this._state);
   @override
-  void dispose() => _state.cancel();
+  bool disposed = false;
+
+// ignore: library_private_types_in_public_api
+  QRViewControllerWeb(_WebQrViewState state) : _state = state;
+
+  @Deprecated(
+    "Disposing the QRViewController is no longer necessary. The controller will self-dispose when the QRView is un-mounted.",
+  )
+  @override
+  void dispose() {
+    // NO-OP | Function kept for backward compatibility
+    // QRViewController will self-dispose when the QRView is disposed
+    log(
+      "It is not required to call dispose() on QRViewController anymore. It will be auto disposed.",
+      name: "qr_code_scanner_plus",
+      level: 900, // warning
+    );
+  }
+
+  void _disposeImpl() {
+    if (disposed) {
+      log(
+        "QRViewController was disposed more than once",
+        name: "qr_code_scanner_plus",
+        level: 900, // warning
+      );
+      return;
+    }
+    disposed = true;
+    _state.cancel();
+  }
 
   @override
   Future<CameraFacing> flipCamera() async {
@@ -324,17 +388,17 @@ class QRViewControllerWeb implements QRViewController {
     throw UnimplementedError();
   }
 
-  @override
   bool get isIntegrationTesting => false;
 
-  @override
   String get linuxDevice => throw UnimplementedError();
 }
 
 Widget createWebQrView(
-        {onPlatformViewCreated, onPermissionSet, CameraFacing? cameraFacing}) =>
+        {Function(QRViewController)? onPlatformViewCreated,
+        onPermissionSet,
+        CameraFacing? cameraFacing}) =>
     WebQrView(
-      onPlatformViewCreated: onPlatformViewCreated,
+      onPlatformViewCreated: onPlatformViewCreated ?? (_) {},
       onPermissionSet: onPermissionSet,
       cameraFacing: cameraFacing,
     );

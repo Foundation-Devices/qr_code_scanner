@@ -40,7 +40,7 @@ public class QRView:NSObject,FlutterPlatformView {
         self.registrar = registrar
         previewView = UIView(frame: frame)
         cameraFacing = MTBCamera.init(rawValue: UInt(Int(params["cameraFacing"] as! Double))) ?? MTBCamera.back
-        channel = FlutterMethodChannel(name: "net.touchcapture.qr.flutterqr/qrview_\(id)", binaryMessenger: registrar.messenger())
+        channel = FlutterMethodChannel(name: "net.touchcapture.qr.flutterqrplus/qrview_\(id)", binaryMessenger: registrar.messenger())
     }
     
     deinit {

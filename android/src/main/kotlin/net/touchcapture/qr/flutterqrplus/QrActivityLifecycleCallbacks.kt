@@ -1,4 +1,4 @@
-package net.touchcapture.qr.flutterqr
+package net.touchcapture.qr.flutterqrplus
 
 import android.app.Activity
 import android.app.Application

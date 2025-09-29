@@ -2,34 +2,37 @@
 // https://stackoverflow.com/questions/61161135/adding-support-for-navigator-mediadevices-getusermedia-to-dart
 
 @JS('navigator.mediaDevices')
-library media_devices;
+library;
 
-import 'package:js/js.dart';
+import 'dart:js_interop';
+import 'package:web/web.dart' as web;
 
 @JS('getUserMedia')
-external Future<dynamic> getUserMedia(UserMediaOptions constraints);
+external JSPromise<web.MediaStream> getUserMedia(UserMediaOptions constraints);
+
+@JS('enumerateDevices')
+external JSPromise<JSArray<web.MediaDeviceInfo>> enumerateDevices();
 
 @JS()
-@anonymous
-class UserMediaOptions {
-  external VideoOptions get video;
+extension type UserMediaOptions._(JSObject _) implements JSObject {
+  external VideoOptions? get video;
 
   external factory UserMediaOptions({VideoOptions? video});
 }
 
 @JS()
-@anonymous
-class VideoOptions {
-  external String get facingMode;
-  // external DeviceIdOptions get deviceId;
+extension type VideoOptions._(JSObject _) implements JSObject {
+  external String? get facingMode;
+  external DeviceIdOptions? get deviceId;
 
-  external factory VideoOptions(
-      {String? facingMode, DeviceIdOptions? deviceId});
+  external factory VideoOptions({
+    String? facingMode,
+    DeviceIdOptions? deviceId,
+  });
 }
 
 @JS()
-@anonymous
-class DeviceIdOptions {
+extension type DeviceIdOptions._(JSObject _) implements JSObject {
   external String get exact;
 
   external factory DeviceIdOptions({String? exact});

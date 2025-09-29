@@ -1,15 +1,15 @@
-group 'net.touchcapture.qr.flutterqr'
+group 'net.touchcapture.qr.flutterqrplus'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.8.0'
+    ext.kotlin_version = '1.9.0'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -32,33 +32,32 @@ android {
     }
     defaultConfig {
         // minSdkVersion is determined by Native View.
-        minSdkVersion 23
+        minSdkVersion 20
         targetSdkVersion 34
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
     compileOptions {
         // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
-        // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-
+        // // // coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 11
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
-    namespace 'net.touchcapture.qr.flutterqr'
-
-    kotlinOptions {
-        jvmTarget = '1.8'
+    if (project.android.hasProperty('namespace')) {
+        namespace 'net.touchcapture.qr.flutterqrplus'
     }
 }
 
-
-
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.zxing:core:3.5.1'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.zxing:core:3.5.2'
+    // // // coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 }

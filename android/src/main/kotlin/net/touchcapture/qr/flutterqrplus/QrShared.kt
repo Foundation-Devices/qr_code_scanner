@@ -1,4 +1,4 @@
-package net.touchcapture.qr.flutterqr
+package net.touchcapture.qr.flutterqrplus
 
 import android.annotation.SuppressLint
 import android.app.Activity
