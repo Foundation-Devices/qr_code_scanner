@@ -26,6 +26,8 @@ import 'platform/platform_info_stub.dart'
 typedef QRViewCreatedCallback = void Function(QRViewController);
 typedef PermissionSetCallback = void Function(QRViewController, bool);
 
+const _defaultIOSMajorVersionOnUnknown = 18;
+
 /// The [QRView] is the view where the camera
 /// and the barcode scanner gets displayed.
 class QRView extends StatefulWidget {
@@ -294,16 +296,21 @@ class QRViewController {
       try {
         final osVersionSplit = osVersion.split(' ');
 
-        final iOSVersion = osVersionSplit.length > 1 ? osVersionSplit[1] : 'Unknown';
-        final iOSVersionDouble = double.tryParse(iOSVersion) ?? 0;
+        // iOS version is sth like 26.0 or 26.0.1, etc.
+        // We cannot assume it would parse as a double, so we need to handle that.
+        final iOSVersion = osVersionSplit.length > 1 ? osVersionSplit[1] : "$_defaultIOSMajorVersionOnUnknown.0";
 
-        // print('iOSVersionDouble $iOSVersionDouble');
-        if (iOSVersionDouble < 18.0) {
-          // Don't call stopCamera on iOS 18 or higher
+        final iOSMajorVersion =
+            int.tryParse(iOSVersion.split('.').firstOrNull ?? '$_defaultIOSMajorVersionOnUnknown') ??
+                _defaultIOSMajorVersionOnUnknown;
+        final isAtLeastIOS18 = iOSMajorVersion >= 18;
+
+        if (isAtLeastIOS18) {
+          // Don't call stopCamera on iOS 18+
           // -- it causes UI to hang for a few seconds, especially on iOS 26+
-          await _channel.invokeMethod('stopCamera');
-        } else {
           await _channel.invokeMethod('pauseCamera');
+        } else {
+          await _channel.invokeMethod('stopCamera');
         }
       } on PlatformException catch (e) {
         throw CameraException(e.code, e.message);
