@@ -1,3 +1,9 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -21,12 +27,8 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 android {
-    compileSdk 35
+    compileSdk 36
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -35,7 +37,7 @@ android {
     defaultConfig {
         applicationId "net.touchcapture.qr.flutterqrexample"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

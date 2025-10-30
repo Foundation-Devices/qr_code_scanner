@@ -1,3 +1,9 @@
+## 2.0.14
+
+- Updated android compile and target SDK to 36
+- Updated android targets to java 17
+- Fixed android build for example app
+
 ## 2.0.13
 
 Fix:
