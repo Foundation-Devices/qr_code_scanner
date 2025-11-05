@@ -312,11 +312,14 @@ class QRViewController {
 
         // iOS version is sth like 26.0 or 26.0.1, etc.
         // We cannot assume it would parse as a double, so we need to handle that.
-        final iOSVersion = osVersionSplit.length > 1 ? osVersionSplit[1] : "$_defaultIOSMajorVersionOnUnknown.0";
+        final iOSVersion = osVersionSplit.length > 1
+            ? osVersionSplit[1]
+            : "$_defaultIOSMajorVersionOnUnknown.0";
 
-        final iOSMajorVersion =
-            int.tryParse(iOSVersion.split('.').firstOrNull ?? '$_defaultIOSMajorVersionOnUnknown') ??
-                _defaultIOSMajorVersionOnUnknown;
+        final iOSMajorVersion = int.tryParse(
+                iOSVersion.split('.').firstOrNull ??
+                    '$_defaultIOSMajorVersionOnUnknown') ??
+            _defaultIOSMajorVersionOnUnknown;
         final isAtLeastIOS18 = iOSMajorVersion >= 18;
 
         if (isAtLeastIOS18) {
