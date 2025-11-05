@@ -1,16 +1,32 @@
+## 2.0.14
+
+- Updated android compile and target SDK to 36
+- Updated android targets to java 17
+- Fixed android build for example app
+
+## 2.0.13
+
+Fix:
+
+- Correctly parse all iOS versions to reliably apply the UI Hanging fix from version 2.0.12
+
 ## 2.0.12
-- For iOS 18 or newer, call `pauseCamera` on dispose instead of `stopCamera`
+
+- For iOS 18 or newer, call `pauseCamera` on dispose instead of `stopCamera` to avoid UI hang
+
+**L.e. The iOS version detection was not correctly parsed, causing this fix to not apply for hotfix iOS versions (such as 26.0.1)**
 
 ## 2.0.11
 
 FIX for iOS 26:
+
 - For iOS 26 or newer, call `pauseCamera` on dispose instead of `stopCamera`
 
 Note: Calling stopCamera on dispose was causing UI to hang for 1-3 seconds
 
 ## 2.0.10+1
 
-- Increased android compile SDK to 35 and removed android test deps 
+- Increased android compile SDK to 35 and removed android test deps
 
 ## 2.0.10
 
