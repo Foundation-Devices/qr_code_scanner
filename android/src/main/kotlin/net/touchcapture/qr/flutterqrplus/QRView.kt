@@ -51,7 +51,10 @@ class QRView(
             },
             onResume = {
                 if (!hasCameraPermission && !isRequestingPermission) checkAndRequestPermission()
-                else if (!isPaused && hasCameraPermission) barcodeView?.resume()
+                else if (!isPaused && hasCameraPermission && barcodeView?.isPreviewActive == false) {
+                    // Only resume if not already active to prevent multiple camera initialization
+                    barcodeView?.resume()
+                }
             }
         )
     }
@@ -121,7 +124,8 @@ class QRView(
             if (params[PARAMS_CAMERA_FACING] as Int == 1) {
                 barcodeView.cameraSettings?.requestedCameraId = cameraFacingFront
             }
-        } else if (!isPaused) {
+        } else if (!isPaused && !barcodeView.isPreviewActive) {
+            // Only resume if not already active to prevent multiple camera initialization
             barcodeView.resume()
         }
 
