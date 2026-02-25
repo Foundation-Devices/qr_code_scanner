@@ -47,8 +47,8 @@ class QRView(
 
         unRegisterLifecycleCallback = QrShared.activity?.registerLifecycleCallbacks(
             onPause = {
+                isCameraStarting = false
                 if (!isPaused && hasCameraPermission) {
-                    isCameraStarting = false
                     barcodeView?.pause()
                 }
             },
