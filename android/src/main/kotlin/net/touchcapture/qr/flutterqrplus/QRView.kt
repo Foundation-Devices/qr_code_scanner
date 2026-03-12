@@ -36,6 +36,7 @@ class QRView(
     private var isRequestingPermission = false
     private var isTorchOn = false
     private var isPaused = false
+    private var isCameraStarting = false
     private var barcodeView: CustomFramingRectBarcodeView? = null
     private var unRegisterLifecycleCallback: UnRegisterLifecycleCallback? = null
 
@@ -46,12 +47,17 @@ class QRView(
 
         unRegisterLifecycleCallback = QrShared.activity?.registerLifecycleCallbacks(
             onPause = {
-                if (!isPaused && hasCameraPermission) barcodeView?.pause()
-
+                isCameraStarting = false
+                if (!isPaused && hasCameraPermission) {
+                    barcodeView?.pause()
+                }
             },
             onResume = {
                 if (!hasCameraPermission && !isRequestingPermission) checkAndRequestPermission()
-                else if (!isPaused && hasCameraPermission) barcodeView?.resume()
+                else if (!isPaused && hasCameraPermission && !isCameraStarting) {
+                    isCameraStarting = true
+                    barcodeView?.resume()
+                }
             }
         )
     }
@@ -61,6 +67,7 @@ class QRView(
 
         QrShared.binding?.removeRequestPermissionsResultListener(this)
 
+        isCameraStarting = false
         barcodeView?.pause()
         barcodeView = null
     }
@@ -121,7 +128,8 @@ class QRView(
             if (params[PARAMS_CAMERA_FACING] as Int == 1) {
                 barcodeView.cameraSettings?.requestedCameraId = cameraFacingFront
             }
-        } else if (!isPaused) {
+        } else if (!isPaused && hasCameraPermission && !isCameraStarting) {
+            isCameraStarting = true
             barcodeView.resume()
         }
 
@@ -180,6 +188,7 @@ class QRView(
     private fun flipCamera(result: MethodChannel.Result) {
         val barcodeView = barcodeView ?: return barCodeViewNotSet(result)
 
+        isCameraStarting = false
         barcodeView.pause()
 
         val settings = barcodeView.cameraSettings
@@ -187,6 +196,7 @@ class QRView(
             settings.requestedCameraId = cameraFacingBack
         } else settings.requestedCameraId = cameraFacingFront
 
+        isCameraStarting = true
         barcodeView.resume()
 
         result.success(settings.requestedCameraId)
@@ -209,6 +219,7 @@ class QRView(
 
         if (barcodeView.isPreviewActive) {
             isPaused = true
+            isCameraStarting = false
             barcodeView.pause()
         }
 
@@ -218,8 +229,9 @@ class QRView(
     private fun resumeCamera(result: MethodChannel.Result) {
         val barcodeView = barcodeView ?: return barCodeViewNotSet(result)
 
-        if (!barcodeView.isPreviewActive) {
+        if (!barcodeView.isPreviewActive && !isCameraStarting) {
             isPaused = false
+            isCameraStarting = true
             barcodeView.resume()
         }
 
@@ -262,9 +274,11 @@ class QRView(
 
     private fun setInvertScan(isInvert: Boolean) {
         val barcodeView = barcodeView ?: return
+        isCameraStarting = false
         with(barcodeView) {
             pause()
             cameraSettings.isScanInverted = isInvert
+            isCameraStarting = true
             resume()
         }
     }
