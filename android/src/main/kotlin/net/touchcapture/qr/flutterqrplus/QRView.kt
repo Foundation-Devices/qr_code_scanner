@@ -125,6 +125,8 @@ class QRView(
 
             barcodeView.decoderFactory = DefaultDecoderFactory(null, null, null, 2)
 
+            barcodeView.cameraSettings.isContinuousFocusEnabled = true
+
             if (params[PARAMS_CAMERA_FACING] as Int == 1) {
                 barcodeView.cameraSettings?.requestedCameraId = cameraFacingFront
             }
